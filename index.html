@@ -1,0 +1,106 @@
+<!DOCTYPE html> 
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
+
+</head>
+
+<body>
+
+    
+    <input type="text" placeholder="NAME" id="uInput">
+    <input type="text" id="oTitile" placeholder="Order name">
+    <input type="number" id="qty" placeholder="Quantity in KG">
+    <input type="text" id="adress" placeholder="Adress">
+    <input type="text" id="phoneNumber" placeholder="Phone Number">
+    <button onclick="addData()">add</button>
+
+    <br>
+    <br>
+    <button onclick="getDate()">Get Data</button>
+    <div>
+        <h1>Orders: </h1>
+        <div id="ordersList"></div>
+    </div>
+
+
+    <script>
+
+        // Initialize Cloud Firestore through Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyDOBlU1EfkvZc9yqsyGSdONA-0zjBrYvFc",
+            authDomain: "madarsa-qadriya-ashrafiya.firebaseapp.com",
+            projectId: "madarsa-qadriya-ashrafiya",
+        });
+
+        var db = firebase.firestore();
+
+
+        function addData() {
+
+            db.collection("orders").add({
+                customerName: document.getElementById("uInput").value,
+                orderTitle: document.getElementById("oTitile").value,
+                qtyInKg: document.getElementById("qty").value,
+                additionComments: "",
+                address: document.getElementById("address").value,
+                phoneNumber: document.getElementById("phoneNumber").value,
+                date: new Date().getTime(),
+            })
+                .then(function (docRef) {
+                    console.log("Document written with ID: ", docRef.id);
+                })
+                .catch(function (error) {
+                    console.error("Error adding document: ", error);
+                });
+
+
+        }
+
+        function getDate() {
+            db.collection("orders").get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    document.getElementById("ordersList").innerHTML +=
+
+                        `<p>${JSON.stringify(doc.data())}</p>`
+                });
+            });
+        }
+
+        // db.collection("cities")
+        //     .onSnapshot(observer);
+
+        db.collection("orders")
+            .onSnapshot(function (snapshot) {
+                snapshot.docChanges().forEach(function (change) {
+                    if (change.type === "added") {
+
+
+                        console.log("New order: ", change.doc.data());
+                        document.getElementById("ordersList").innerHTML =
+
+                            `<p>${JSON.stringify(change.doc.data())}</p>` + document.getElementById("ordersList").innerHTML
+
+
+
+                    }
+                    if (change.type === "modified") {
+                        console.log("Modified order: ", change.doc.data());
+                    }
+                    if (change.type === "removed") {
+                        console.log("Removed order: ", change.doc.data());
+                    }
+                });
+            });
+
+
+    </script>
+</body>
+
+</html>
